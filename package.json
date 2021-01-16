@@ -1,0 +1,26 @@
+{
+  "name": "reminder_pay_app",
+  "version": "1.0.0",
+  "description": "build reminder app with cronjob and express",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devStart": "nodemon app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "cronjob"
+  ],
+  "author": "Dang Thanh Long",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.11.9",
+    "node-cron": "^2.0.3",
+    "nodemailer": "^6.4.17",
+    "nodemon": "^2.0.6",
+    "pug": "^3.0.0"
+  }
+}

@@ -1,0 +1,78 @@
+doctype html
+html
+  head
+    title Reminder App
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
+    style. 
+     .noti{
+       display:none;
+     }
+     .active{
+       display: block;
+     }
+  body
+   block content
+   .container
+     h1.mt-4 Create Reminder Pay
+     form(action="/" method="POST")
+       .form-row
+          .form-group.col-md-6
+            label(for="name") Name
+            input(type="text" class="form-control" name="name" required)
+          .form-group.col-md-6
+            label(for="to") To
+            input(type="email" class="form-control" name="to" required)
+       .form-group 
+        label(for="subject") Subject
+        input(type="text" class="form-control" name="subject" required)
+       .form-group   
+        label(for="content") Content
+        textarea( id="classic-editor" cols="5" rows="5" class="form-control" name="content")
+       
+       button.btn.btn-primary(type="submit") Create   
+
+     h1.mt-5 List Reminder Pay
+     .alert.alert-danger.noti( role="alert")
+        | Bạn vui lòng chờ 60s để hệ thống bắt đầu tự động gửi mail nha
+     .row.mt-4
+        .col-lg-4.col-md-4.mb-4
+            each task in tasks
+              h4
+                b
+                  | Name: &nbsp;
+                = task.name
+              span
+                b
+                  | Email: &nbsp;
+                = task.to
+              p 
+                b
+                  | Content: &nbsp;
+                = task.content 
+              a(href="/delete/" + task.id class="btn btn-success mr-4") Đã Trả Nợ
+              a(href="/debit/" + task.id class="btn btn-danger" id="debit") Chưa Trả Nợ    
+
+  script(src='https://code.jquery.com/jquery-3.4.1.min.js', integrity='sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=', crossorigin='anonymous')
+  script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js', integrity='sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM', crossorigin='anonymous')
+  script(src="https://cdn.ckeditor.com/ckeditor5/24.0.0/classic/ckeditor.js")
+  script.
+    $(document).ready(function(){
+        ClassicEditor
+            .create(document.querySelector('#classic-editor'), {
+
+            })
+            .catch(error => {
+            console.error( error )
+            })
+      })  
+
+      let noti = document.getElementsByClassName("noti")
+      let debit =  document.getElementById("debit")
+
+      debit.addEventListener('click', () => {
+          noti[0].classList.add("active")
+      })   
+
+  
