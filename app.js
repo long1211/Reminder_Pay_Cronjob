@@ -29,6 +29,8 @@ app.use(bodyParser.urlencoded({
 
 
 app.use(inderRouter)
-app.listen(port, () =>{
-    console.log(`Server listening ${port}`)
-})
+// app.listen(port, () =>{
+//     console.log(`Server listening ${port}`)
+// })
+
+app.listen(process.env.PORT || 3000)
