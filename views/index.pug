@@ -37,8 +37,8 @@ html
      .alert.alert-danger.noti( role="alert")
         | Bạn vui lòng chờ 60s để hệ thống bắt đầu tự động gửi mail nha
      .row.mt-4
+       each task in tasks 
         .col-lg-4.col-md-4.mb-4
-            each task in tasks
               h4
                 b
                   | Name: &nbsp;
