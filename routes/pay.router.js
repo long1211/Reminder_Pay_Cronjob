@@ -83,9 +83,9 @@ router.get('/delete/:id', async (req, res) => {
     try{
          task = await Task.findById(req.params.id)
          await task.remove()
-         
-         debit.stop()
          res.redirect('/')
+         debit.stop()
+         
     }catch(err){
          res.send(err)
     }
