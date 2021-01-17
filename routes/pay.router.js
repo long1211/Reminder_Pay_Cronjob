@@ -15,9 +15,9 @@ router.get('/', async (req, res) => {
         res.render('index', {
             tasks: tasks
         })
-    }catch{
-         res.redirect('/')
-    }
+    }catch(err){
+        res.send(err)
+   }
    
 })
 
@@ -71,7 +71,6 @@ router.get('/debit/:id', async(req, res) => {
       })      
 
      debit.start()   
-
     }catch(err){
          res.send(err)
     }
