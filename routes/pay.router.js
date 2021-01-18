@@ -5,7 +5,7 @@ const Task = require("../models/pay.model")
 const nodemailer = require("nodemailer")
 const cron = require("node-cron")
 const mailHost = 'smtp.gmail.com'
-const mailPort = 587
+const mailPort = 465
 let debit
 
 // Get home page
@@ -49,7 +49,11 @@ router.get('/debit/:id', async(req, res) => {
        auth:{
            user: process.env.AdminUser,
            pass: process.env.pass
-       }
+       },
+       tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false
+    }
    })
    try{
       debit = cron.schedule('* * * * *', () => {
