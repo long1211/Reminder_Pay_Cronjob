@@ -65,12 +65,13 @@ router.get('/debit/:id', async(req, res) => {
                  console.log("Error occured", err)
               }else{
                   console.log("email sent", info)
-                  return res.redirect('/')
+                 
               }
           })
       })      
 
-     debit.start()   
+     debit.start() 
+     return res.redirect('/')  
     }catch(err){
          res.send(err)
     }
@@ -83,9 +84,9 @@ router.get('/delete/:id', async (req, res) => {
     try{
          task = await Task.findById(req.params.id)
          await task.remove()
-         res.redirect('/')
-         debit.stop()
          
+         debit.stop()
+         res.redirect('/')
     }catch(err){
          res.send(err)
     }
