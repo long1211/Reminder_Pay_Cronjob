@@ -4,6 +4,7 @@ const Task = require("../models/pay.model")
 
 const nodemailer = require("nodemailer")
 const { google } = require("googleapis");
+const OAuth2 = google.auth.OAuth2;
 const cron = require("node-cron")
 const mailHost = 'smtp.gmail.com'
 const mailPort = 587
@@ -43,16 +44,42 @@ router.post('/', async (req, res) => {
 // Not finish pay - Auto Reminder mail
 router.get('/debit/:id', async(req, res) => {
    const tasks = await Task.findById(req.params.id)
-   const transporter = nodemailer.createTransport({
-       host: mailHost,
-       port: mailPort,
-       secure: false,
-       auth:{
-           type: 'OAuth2',
-           user: process.env.EMAIL,
-           accessToken: process.env.ACCESS_TOKEN
-       }
-   })
+
+ 
+    const oauth2Client = new OAuth2(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      "https://developers.google.com/oauthplayground"
+    );
+  
+    oauth2Client.setCredentials({
+      refresh_token: process.env.REFRESH_TOKEN
+    });
+  
+    const accessToken = await new Promise((resolve, reject) => {
+      oauth2Client.getAccessToken((err, token) => {
+        if (err) {
+          reject("Failed to create access token :(");
+        }
+        resolve(token);
+      });
+    });
+  
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      host: mailHost,
+      port: mailPort,
+      secure: false,
+      auth: {
+        type: "OAuth2",
+        user: process.env.EMAIL,
+        accessToken,
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        refreshToken: process.env.REFRESH_TOKEN
+      }
+    });
+  
    try{
       debit = cron.schedule('* * * * *', () => {
           const mailOptions = {
