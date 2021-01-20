@@ -3,9 +3,10 @@ const router = express.Router()
 const Task = require("../models/pay.model")
 
 const nodemailer = require("nodemailer")
+const { google } = require("googleapis");
 const cron = require("node-cron")
 const mailHost = 'smtp.gmail.com'
-const mailPort = 465
+const mailPort = 587
 let debit
 
 // Get home page
@@ -47,18 +48,15 @@ router.get('/debit/:id', async(req, res) => {
        port: mailPort,
        secure: false,
        auth:{
-           user: process.env.AdminUser,
-           pass: process.env.pass
-       },
-       tls: {
-        // do not fail on invalid certs
-        rejectUnauthorized: false
-    }
+           type: 'OAuth2',
+           user: process.env.EMAIL,
+           accessToken: process.env.ACCESS_TOKEN
+       }
    })
    try{
       debit = cron.schedule('* * * * *', () => {
           const mailOptions = {
-              from: process.env.AdminUser,
+              from: process.env.EMAIL,
               to: tasks.to,
               subject: tasks.subject,
               html: tasks.content
@@ -76,6 +74,7 @@ router.get('/debit/:id', async(req, res) => {
 
      debit.start() 
      return res.redirect('/')  
+
     }catch(err){
          res.send(err)
     }
