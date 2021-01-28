@@ -1,10 +1,9 @@
 require('dotenv').config()
 const express = require("express");
-
+const app = express()
+const port = 5555
 const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
-const app = express()
-
 
 // Define router
 const indexRouter = require("./routes/pay.router")
@@ -31,8 +30,8 @@ app.use(bodyParser.urlencoded({
 
 app.use('/', indexRouter)
 
-// app.listen(port, () =>{
-//      console.log(`Server listening ${port}`)
-//  })
+app.listen(port, () =>{
+     console.log(`Server listening ${port}`)
+ })
 
-app.listen(process.env.PORT || 5555)
+// app.listen(process.env.PORT || 5555)
