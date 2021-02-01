@@ -3,10 +3,51 @@ const router = express.Router()
 const Task = require("../models/pay.model")
 
 const nodemailer = require("nodemailer")
+const { google } = require("googleapis");
+const OAuth2 = google.auth.OAuth2;
 const cron = require("node-cron")
 const mailHost = 'smtp.gmail.com'
 const mailPort = 587
 let debit
+
+//// Setup OAuth2 send mail
+const createTransporter = async () => {
+    const oauth2Client = new OAuth2(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      "https://developers.google.com/oauthplayground"
+    );
+  
+    oauth2Client.setCredentials({
+      refresh_token: process.env.REFRESH_TOKEN
+    });
+  
+    const accessToken = await new Promise((resolve, reject) => {
+      oauth2Client.getAccessToken((err, token) => {
+        if (err) {
+          reject();
+        }
+        resolve(token);
+      });
+    });
+  
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      mailHost,
+      mailPort,
+      auth: {
+        type: "OAuth2",
+        user: process.env.EMAIL,
+        accessToken,
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        refreshToken: process.env.REFRESH_TOKEN
+      }
+    });
+  
+    return transporter;
+  };
+
 
 // Get home page
 router.get('/', async (req, res) => {
@@ -42,31 +83,28 @@ router.post('/', async (req, res) => {
 // Not finish pay - Auto Reminder mail
 router.get('/debit/:id', async (req, res) => {
     const tasks = await Task.findById(req.params.id)
-    const transporter = nodemailer.createTransport({
-        host: mailHost,
-        port: mailPort,
-        secure: false,
-        auth: {
-            user: process.env.AdminUser,
-            pass: process.env.pass
-        }
-    })
+    // const transporter = nodemailer.createTransport({
+    //     host: mailHost,
+    //     port: mailPort,
+    //     secure: false,
+    //     auth: {
+    //         user: process.env.AdminUser,
+    //         pass: process.env.pass
+    //     }
+    // })
     try {
         debit = cron.schedule('* * * * *', () => {
-            const mailOptions = {
+            const sendEmail = async (emailOptions) => {
+                let emailTransporter = await createTransporter();
+               let mailsend = await emailTransporter.sendMail(emailOptions);
+                console.log(mailsend)
+              };
+
+              sendEmail({
                 from: process.env.AdminUser,
                 to: tasks.to,
                 subject: tasks.subject,
                 html: tasks.content
-            }
-
-            transporter.sendMail(mailOptions, (err, info) => {
-                if (err) {
-                    console.log("Error occured", err)
-                } else {
-                    console.log("email sent", info)
-
-                }
             })
         })
 
