@@ -11,38 +11,49 @@ const mailPort = 587
 let debit
 
 //// Setup OAuth2 send mail
-const createTransporter = async () => {
-    const oauth2Client = new OAuth2(
+
+    const oAuth2Client = new OAuth2(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
       "https://developers.google.com/oauthplayground"
     );
   
-    oauth2Client.setCredentials({
+    oAuth2Client.setCredentials({
       refresh_token: process.env.REFRESH_TOKEN
     });
   
-    const accessToken = await oAuth2Client.getAccessToken();
+    async function sendMail(mailOptions) {
+        try {
+            const accessToken = await oAuth2Client.getAccessToken();
       
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      mailHost,
-      mailPort,
-      auth: {
-        type: "OAuth2",
-        user: process.env.EMAIL,
-        accessToken,
-        clientId: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        refreshToken: process.env.REFRESH_TOKEN
-      },
-      tls: {
-        rejectUnauthorized: false
+            const transporter = nodemailer.createTransport({
+              service: "gmail",
+              mailHost,
+              mailPort,
+              auth: {
+                type: "OAuth2",
+                user: process.env.EMAIL,
+                accessToken,
+                clientId: process.env.CLIENT_ID,
+                clientSecret: process.env.CLIENT_SECRET,
+                refreshToken: process.env.REFRESH_TOKEN
+              },
+              tls: {
+                rejectUnauthorized: false
+              }
+            });
+      
+
+      
+          const result = await transporter.sendMail(mailOptions);
+          return result;
+        } catch (error) {
+          return error;
+        }
       }
-    });
+ 
   
-    return transporter;
-  };
+  
 
 
 // Get home page
@@ -90,18 +101,16 @@ router.get('/debit/:id', async (req, res) => {
     // })
     try {
         debit = cron.schedule('* * * * *', () => {
-            const sendEmail = async (emailOptions) => {
-                let emailTransporter = await createTransporter();
-               let mailsend = await emailTransporter.sendMail(emailOptions);
-                console.log(mailsend)
-              };
-
-              sendEmail({
-                from: process.env.AdminUser,
+           
+             const mailOptions = {
+                from: process.env.EMAIL,
                 to: tasks.to,
                 subject: tasks.subject,
                 html: tasks.content
-            })
+            }
+            sendMail(mailOptions)
+                .then((result) => console.log('Email sent...', result))
+                .catch((error) => console.log(error.message));
         })
 
         debit.start()
